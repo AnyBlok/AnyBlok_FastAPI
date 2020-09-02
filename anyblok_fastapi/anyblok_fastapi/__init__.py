@@ -27,9 +27,6 @@ class Anyblok_fastapi(Blok):
         """Python module to import while reloading server (ie when
         adding Blok at runtime
         """
-        import pdb
-
-        pdb.set_trace()
         from . import model  # noqa
 
         reload(model)
