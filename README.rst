@@ -8,6 +8,23 @@ Use AnyBlok with FastAPI
 * Free software: Mozilla Public License Version 2.0
 * Documentation: https://anyblok-fastapi.readthedocs.io.
 
+TODO
+----
+
+- [x] Valider le fonctionnement tel quel avec sqla et des class "schéma" / create / get
+- [x] Tester une déclaration des routes dans le load du blok avec un middlware
+      qui ferait un set de app.router.routes à la vollé en fonction de l'info
+      stocké sur le registre
+      https://fastapi.tiangolo.com/advanced/custom-request-and-route/
+- [ ] Gestion des exceptions (https://fastapi.tiangolo.com/tutorial/handling-errors/):
+    - [ ] erreur de validation
+    - [ ] erreur SQLA genre un enregistrement non trouvé avec un one
+    - [ ] erreur nécessitant un rollback
+- [ ] Tester l'intégration gunicorn
+- [ ] Écrire des tests unitaire
+- [ ] tester le mode debug et hot reload
+- [ ] Tester l'usage de model anyblok comme schéma de validation
+- [ ] Permettre la déclaration d'une méthode pour paramétrer des nouvelles routes
 
 Features
 --------
