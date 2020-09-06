@@ -19,7 +19,7 @@ Configuration.add_application_properties(
     [],
     prog="AnyBlok gunicorn asgi app",
     description="WSGI for test your AnyBlok / Pyramid app",
-    configuration_groups=["logging", "uvicorn", "preload", "gunicorn", "database"],
+    configuration_groups=["logging", "preload", "gunicorn", "database"],
 )
 
 
