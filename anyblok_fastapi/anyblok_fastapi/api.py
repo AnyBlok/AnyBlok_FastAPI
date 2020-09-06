@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from anyblok import registry
 
 
-async def homepage() -> HTMLResponse:
+async def homepage(request: Request) -> HTMLResponse:
     return HTMLResponse("<html><body><h1>Hello, world!</h1></body></html>")
 
 
@@ -18,7 +18,6 @@ def create_example(
 ) -> "registry.Example":
     """Something useful to tell to API user"""
     registry = request.state.anyblok_registry
-    print("create example: ", registry, registry.session, registry.transaction)
     db_ex = registry.Example.insert(name=example.name)
     db_ex.refresh()
     return db_ex

@@ -46,7 +46,6 @@ class RequestEnvironment:
                     request = arg
                     break
         if request:
-            print("current request", request.state.anyblok_fastapi_request_id)
             return request.state.anyblok_fastapi_request_id
 
         return threading.get_ident()
@@ -95,19 +94,12 @@ class AnyblokRegistryMiddleware(BaseHTTPMiddleware):
         request.state.anyblok_fastapi_request_id = uuid4()
         dbname: str = self.get_db_name(request)
         if Configuration.get("Registry").db_exists(db_name=dbname):
-            request.state.anyblok_registry = registry = get_registry_for(dbname)
+            request.state.anyblok_registry = get_registry_for(dbname)
             request.scope["app"].router.routes.extend(
                 request.state.anyblok_registry.asgi_routes.values()
             )
         try:
-            print("before: ", registry, registry.session, registry.transaction)
             response = await call_next(request)
-            print(
-                "after, commiting...?: ",
-                registry,
-                registry.session,
-                registry.transaction,
-            )
             request.state.anyblok_registry.commit()
         except Exception as ex:
             # TODO: not sure if it would conflict with excption handling

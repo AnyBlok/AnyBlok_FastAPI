@@ -50,7 +50,6 @@ class Anyblok_fastapi(Blok):
         self.registry.declare_routes(
             {
                 "home": Route("/", homepage, methods=["GET"]),
-                # "api/test": Mount("/examples", routes=[
                 "GET/examples/": APIRoute(
                     "/examples/",
                     examples,
@@ -74,7 +73,6 @@ class Anyblok_fastapi(Blok):
                     response_model=ExampleSchema,
                     response_class=JSONResponse,
                 ),
-                # ]),
                 "other": APIRoute("/other", other, response_class=JSONResponse),
             }
         )
