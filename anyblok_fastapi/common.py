@@ -23,15 +23,13 @@ if TYPE_CHECKING:
 logger = getLogger(__name__)
 
 
-def declare_routes(self, routes: Dict = None) -> None:
-    if not self.asgi_routes:
-        self.asgi_routes = {}
-    if not routes:
-        routes = {}
-    self.asgi_routes.update(routes)
-
-
-Registry.declare_routes = declare_routes
+class FastAPIRegistry(Registry):
+    def declare_routes(self, routes: Dict = None) -> None:
+        if not self.asgi_routes:
+            self.asgi_routes: Dict = {}
+        if not routes:
+            routes = {}
+        self.asgi_routes.update(routes)
 
 
 class RequestEnvironment:

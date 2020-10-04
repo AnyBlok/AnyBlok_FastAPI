@@ -257,3 +257,6 @@ def update_plugins(group: "AnyBlokArgumentGroup") -> None:
         "set registry object "
         "on asgi request.state.anyblok.registry",
     )
+    group.set_defaults(
+        Registry="anyblok_fastapi.common:FastAPIRegistry",
+    )
