@@ -43,9 +43,12 @@ setup(
             "anyblok_uvicorn=anyblok_fastapi.scripts:asgi",
             "gunicorn_anyblok_uvicorn=anyblok_fastapi.scripts:gunicorn_asgi",
         ],
-        "bloks": ["anyblok_fastapi=anyblok_fastapi.anyblok_fastapi:Anyblok_fastapi"],
+        "bloks": [],
         "anyblok.init": [
             "anyblok_fastapi_config=anyblok_fastapi:anyblok_init_config",
+        ],
+        "test_bloks": [
+            "test-fastapi-blok1=anyblok_fastapi.test_bloks.test_blok1:TestBlok",
         ],
     },
     include_package_data=True,

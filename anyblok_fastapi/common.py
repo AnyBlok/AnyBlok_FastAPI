@@ -4,13 +4,13 @@ from logging import getLogger
 from typing import TYPE_CHECKING, Any, Callable, Dict
 from uuid import uuid4
 
-from anyblok.config import Configuration
-from anyblok.registry import Registry, RegistryManager
 from fastapi import FastAPI
 from starlette.middleware import Middleware
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 
+from anyblok.config import Configuration
+from anyblok.registry import Registry, RegistryManager
 from anyblok_fastapi.config import get_db_name as default_get_db_name
 
 if TYPE_CHECKING:
@@ -24,9 +24,10 @@ logger = getLogger(__name__)
 
 
 class FastAPIRegistry(Registry):
+
+    asgi_routes: Dict[str, "BaseRoute"] = {}
+
     def declare_routes(self, routes: Dict = None) -> None:
-        if not self.asgi_routes:
-            self.asgi_routes: Dict = {}
         if not routes:
             routes = {}
         self.asgi_routes.update(routes)
@@ -98,9 +99,15 @@ class AnyblokRegistryMiddleware(BaseHTTPMiddleware):
             )
         try:
             response = await call_next(request)
-            request.state.anyblok_registry.commit()
+            if hasattr(request.state, "anyblok_registry"):
+                if not request.state.anyblok_registry.unittest:
+                    # TODO: we should do a two phase commit to make sure
+                    # end users wait until the end that he receives all results
+                    # if user get a timeout due a proxy we must rollback its
+                    # transaction
+                    request.state.anyblok_registry.commit()
         except Exception as ex:
-            # TODO: not sure if it would conflict with excption handling
+            # TODO: not sure if it would conflict with exception handling
             # https://fastapi.tiangolo.com/tutorial/handling-errors/#install-custom-exception-handlers
             # https://fastapi.tiangolo.com/tutorial/dependencies/dependencies-with-yield/#dependencies-with-yield-and-httpexception
             if hasattr(request.state, "anyblok_registry"):
@@ -108,7 +115,8 @@ class AnyblokRegistryMiddleware(BaseHTTPMiddleware):
             raise ex
         finally:
             if hasattr(request.state, "anyblok_registry"):
-                request.state.anyblok_registry.session.close()
+                if not request.state.anyblok_registry.unittest:
+                    request.state.anyblok_registry.close()
         return response
 
 

@@ -2,10 +2,11 @@
 """
 from typing import TYPE_CHECKING, Callable, List
 
-from anyblok.blok import Blok
 from fastapi.routing import APIRoute
 from starlette.responses import JSONResponse
 from starlette.routing import Route
+
+from anyblok.blok import Blok
 
 if TYPE_CHECKING:
     from types import ModuleType
@@ -13,12 +14,14 @@ if TYPE_CHECKING:
     from anyblok.version import AnyBlokVersion
 
 
-class Anyblok_fastapi(Blok):
-    """Anyblok_fastapi's Blok class definition"""
+class TestBlok(Blok):
+    """TestBlok's Blok class definition"""
 
     version = "0.1.0"
     author = "Pierre Verkest"
-    required = ["anyblok-core"]
+    required = [
+        "anyblok-core",
+    ]
 
     @classmethod
     def import_declaration_module(cls) -> None:

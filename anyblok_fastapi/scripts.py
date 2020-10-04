@@ -1,16 +1,15 @@
 import sys
+from copy import copy
 from logging import getLogger
 from typing import List
 
-from anyblok import (configuration_post_load,
-                     load_init_function_from_entry_points)
+from uvicorn.main import run
+
+from anyblok import configuration_post_load, load_init_function_from_entry_points
 from anyblok.blok import BlokManager
 from anyblok.config import Configuration
 from anyblok.environment import EnvironmentManager
-from uvicorn.main import run
-
-from anyblok_fastapi.common import (RequestEnvironment, create_app,
-                                    preload_databases)
+from anyblok_fastapi.common import RequestEnvironment, create_app, preload_databases
 
 logger = getLogger(__name__)
 
@@ -19,7 +18,7 @@ def asgi() -> None:
     """uvicorn ASGI dev server"""
 
     load_init_function_from_entry_points()
-    argv: List[str] = [] + sys.argv
+    argv: List[str] = copy(sys.argv)
     Configuration.load("uvicorn")
     sys.argv = argv
     configuration_post_load()

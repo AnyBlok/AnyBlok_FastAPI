@@ -10,21 +10,20 @@ import argparse
 from logging import getLogger
 from typing import TYPE_CHECKING, Any
 
-from anyblok import (configuration_post_load,
-                     load_init_function_from_entry_points)
-from anyblok.blok import BlokManager
-from anyblok.config import Configuration, getParser
-from anyblok.environment import EnvironmentManager
 from gunicorn import __version__
 from gunicorn.app.base import Application
 from gunicorn.config import Config as GunicornConfig
 
-from anyblok_fastapi.common import (RequestEnvironment, create_app,
-                                    preload_databases)
+from anyblok import configuration_post_load, load_init_function_from_entry_points
+from anyblok.blok import BlokManager
+from anyblok.config import Configuration, getParser
+from anyblok.environment import EnvironmentManager
+from anyblok_fastapi.common import RequestEnvironment, create_app, preload_databases
 
 if TYPE_CHECKING:
-    from anyblok.config import AnyBlokArgumentParser
     from fastapi import FastAPI
+
+    from anyblok.config import AnyBlokArgumentParser
 
 
 logger = getLogger(__name__)

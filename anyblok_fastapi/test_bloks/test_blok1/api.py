@@ -1,3 +1,4 @@
+import asyncio
 from typing import TYPE_CHECKING, Dict, List
 
 from starlette.requests import Request
@@ -13,18 +14,20 @@ async def homepage(request: Request) -> HTMLResponse:
     return HTMLResponse("<html><body><h1>Hello, world!</h1></body></html>")
 
 
-def create_example(
+async def create_example(
     example: ExampleCreateSchema, request: "Request"
 ) -> "registry.Example":
     """Something useful to tell to API user"""
     registry = request.state.anyblok_registry
     db_ex = registry.Example.insert(name=example.name)
+    await asyncio.sleep(0.5)
     db_ex.refresh()
     return db_ex
 
 
-def examples(request: "Request") -> List["registry.Example"]:
+async def examples(request: "Request") -> List["registry.Example"]:
     registry = request.state.anyblok_registry
+    await asyncio.sleep(1)
     return registry.Example.query().all()
 
 
