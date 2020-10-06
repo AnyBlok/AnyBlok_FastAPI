@@ -255,8 +255,17 @@ def update_plugins(group: "AnyBlokArgumentGroup") -> None:
         default="anyblok_fastapi.config:get_db_name",
         help="get_db_name function to use in order to properly "
         "set registry object "
-        "on asgi request.state.anyblok.registry",
+        "on asgi request.state.anyblok_registry",
+    )
+    group.add_argument(
+        "--get-extra-routes-plugin",
+        dest="get_extra_routes",
+        type=AnyBlokPlugin,
+        default="anyblok_fastapi.fastapi:get_extra_routes",
+        help="get_extra_routes function to use in order to properly "
+        "add extra routes at runtime according the current registry we previously"
+        "store on asgi request.state.anyblok_registry",
     )
     group.set_defaults(
-        Registry="anyblok_fastapi.common:FastAPIRegistry",
+        Registry="anyblok_fastapi.fastapi:FastAPIRegistry",
     )

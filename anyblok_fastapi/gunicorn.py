@@ -18,7 +18,8 @@ from anyblok import configuration_post_load, load_init_function_from_entry_point
 from anyblok.blok import BlokManager
 from anyblok.config import Configuration, getParser
 from anyblok.environment import EnvironmentManager
-from anyblok_fastapi.common import RequestEnvironment, create_app, preload_databases
+from anyblok_fastapi.common import preload_databases
+from anyblok_fastapi.fastapi import RequestEnvironment, create_app
 
 if TYPE_CHECKING:
     from fastapi import FastAPI
@@ -103,7 +104,7 @@ class WSGIApplication(Application):
         configuration_post_load()
 
     def load(self) -> "FastAPI":
-        BlokManager.load()
+        BlokManager.load(entry_points=("bloks", "test_bloks"))
         EnvironmentManager.define_environment_cls(RequestEnvironment)
         preload_databases()
         return create_app()

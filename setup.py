@@ -36,7 +36,7 @@ setup(
     long_description=readme + "\n\n" + changelog,
     author="Pierre Verkest",
     author_email="pierreverkest84@gmail.com",
-    url="https://github.com/petrus-v/anyblok-fastapi",
+    url="https://github.com/AnyBlok/AnyBlok_FastAPI",
     packages=find_packages(),
     entry_points={
         "console_scripts": [

@@ -3,7 +3,7 @@ from fastapi.testclient import TestClient
 
 from anyblok.conftest import *  # noqa
 from anyblok.testing import load_configuration
-from anyblok_fastapi.common import create_app
+from anyblok_fastapi.fastapi import create_app
 
 
 @pytest.fixture(scope="session")
