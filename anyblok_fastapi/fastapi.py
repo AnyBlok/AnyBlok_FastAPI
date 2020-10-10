@@ -245,4 +245,8 @@ def create_app() -> FastAPI:
         logger.debug("Add FastAPI middlewares: %r" % method.name)
         middlewares.extend(method.load()())
 
+    for method in iter_entry_points("anyblok_fastapi.routes"):
+        logger.debug("Add FastAPI routes: %r" % method.name)
+        routes.extend(method.load()())
+
     return FastAPI(routes=routes, middleware=middlewares)
