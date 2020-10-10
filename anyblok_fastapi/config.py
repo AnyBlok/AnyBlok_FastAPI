@@ -1,3 +1,4 @@
+from os import environ
 from typing import TYPE_CHECKING
 
 from anyblok.config import AnyBlokPlugin, Configuration
@@ -238,8 +239,8 @@ def add_configuration_file(parser: "AnyBlokArgumentGroup") -> None:
     parser.add_argument(
         "--anyblok-configfile",
         dest="configfile",
-        default="",
-        help="Relative path of the config file",
+        default=environ.get("ANYBLOK_CONFIG_FILE"),
+        help="Relative path of the AnyBlok config file",
     )
     parser.add_argument(
         "--without-auto-migration", dest="withoutautomigration", action="store_true"
