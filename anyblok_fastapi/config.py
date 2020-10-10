@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 Configuration.add_application_properties(
     "uvicorn",
-    ["logging", "uvicorn", "preload"],
+    ["logging", "uvicorn", "preload", "plugins"],
     prog="AnyBlok asgi app, version",
     description="ASGI AnyBlok / uvicorn / Starlette / FastAPI app",
 )
@@ -20,7 +20,7 @@ Configuration.add_application_properties(
     [],
     prog="AnyBlok gunicorn asgi app",
     description="WSGI for test your AnyBlok / Pyramid app",
-    configuration_groups=["logging", "preload", "gunicorn", "database"],
+    configuration_groups=["logging", "preload", "gunicorn", "database", "plugins"],
 )
 
 
