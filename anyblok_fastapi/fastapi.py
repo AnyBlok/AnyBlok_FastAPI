@@ -95,8 +95,8 @@ class AnyblokRegistryMiddleware(BaseHTTPMiddleware):
         request.state.anyblok_fastapi_request_id = uuid4()
         dbname: str = self.get_db_name(request)
         if Configuration.get("Registry").db_exists(db_name=dbname):
-            request.state.anyblok_registry.System.Cache.clear_invalidate_cache()
             request.state.anyblok_registry = get_registry_for(dbname)
+            request.state.anyblok_registry.System.Cache.clear_invalidate_cache()
         try:
             response = await call_next(request)
             if hasattr(request.state, "anyblok_registry"):
