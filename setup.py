@@ -22,7 +22,7 @@ requirements = [
     "fastapi",
     "gunicorn",
     "sqlalchemy",
-    "uvicorn",
+    "uvicorn[standard]",
 ]
 
 test_requirements: List[str] = [
