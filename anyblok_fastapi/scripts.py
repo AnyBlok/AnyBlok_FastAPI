@@ -73,6 +73,6 @@ def gunicorn_asgi():
         logger.error("Gunicorn is not installed. Try: pip install gunicorn")
         sys.exit(1)
 
-    from .gunicorn import WSGIApplication
+    from .gunicorn import ASGIApplication
 
-    WSGIApplication("gunicorn").run()
+    ASGIApplication("gunicorn").run()

@@ -77,14 +77,14 @@ class Config(GunicornConfig):
         self.settings[name].set(value)
 
 
-class WSGIApplication(Application):
+class ASGIApplication(Application):
     def __init__(self, application: str) -> None:
         load_init_function_from_entry_points()
         conf = Configuration.applications.get(application, {})
         usage = conf.get("usage")
         prog = conf.get("prog")
         self.application = application
-        super(WSGIApplication, self).__init__(usage=usage, prog=prog)
+        super(ASGIApplication, self).__init__(usage=usage, prog=prog)
 
     def load_default_config(self) -> None:
         self.cfg = Config(self.usage, prog=self.prog, application=self.application)
@@ -104,7 +104,7 @@ class WSGIApplication(Application):
         configuration_post_load()
 
     def load(self) -> "FastAPI":
-        BlokManager.load(entry_points=("bloks", "test_bloks"))
+        BlokManager.load(entry_points=("bloks",))
         EnvironmentManager.define_environment_cls(RequestEnvironment)
         preload_databases()
         return create_app()
