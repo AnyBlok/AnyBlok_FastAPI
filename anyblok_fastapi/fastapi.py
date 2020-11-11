@@ -120,37 +120,6 @@ class AnyblokRegistryMiddleware(BaseHTTPMiddleware):
         return response
 
 
-def get_extra_routes(request: "Request") -> List["BaseRoute"]:
-    if hasattr(request.state, "anyblok_registry"):
-        return request.state.anyblok_registry.asgi_routes.values()
-    return []
-
-
-class ExtraRoutesMiddleware(BaseHTTPMiddleware):
-    """Add extra routes at runtime according request context"""
-
-    def __init__(self, app: "ASGIApp", extra_routes: Callable = get_extra_routes):
-        super().__init__(app)
-        self.base_routes: List["BaseRoute"] = app.app.routes
-        self.extra_routes_callback = extra_routes
-
-    async def dispatch(
-        self, request: "Request", call_next: "RequestResponseEndpoint"
-    ) -> "Response":
-        # create a new list ref to avoid add extra routes in base_routes
-        routes: List["BaseRoute"] = [] + self.base_routes
-        routes.extend(self.extra_routes_callback(request))
-        # PV: I'm not sure it's good idea to do so
-        # waiting community response
-        # https://gitter.im/encode/community?at=5f7c213f1adcf94d3f038721
-        request.scope["app"].router.routes = routes
-        try:
-            response = await call_next(request)
-        finally:
-            request.scope["app"].router.routes = self.base_routes
-        return response
-
-
 def get_registry(request: "Request"):
     """Facility to get anyblok registry in route entry point
     from fastapi import Depends
@@ -178,11 +147,44 @@ def get_registry(request: "Request"):
     return request.state.anyblok_registry
 
 
-def create_app() -> FastAPI:
+def create_app(registry: "Registry") -> FastAPI:
     """Create FastAPI App
 
     At the time writting routes are declared on bloks and are dynamically
-    loads according if blok is loaded or not.
+    loads according if blok is loaded or not at startup.
+
+    You can setup an entry point to add new routes to your Starlette/FastAPI
+    application using entry point ``anyblok_fastapi.routes``:
+
+    method that return a BaseRoute List::
+
+        from starlette.routing import Mount, Route
+        from myapp import api
+        ...
+
+        def get_routes():
+            return [
+                Route("/", endpoint=home),
+                Route("/api", endpoint=api, methods=["GET", "POST"]),
+                Mount(
+                    "/statics",
+                    app=StaticFiles(directory="static_dir"),
+                    name="Statics"
+                ),
+            ]
+
+    We add the entry point in setup file::
+
+        setup(
+            ...,
+            entry_points={
+                "anyblok_fastapi.routes": [
+                    "statics=path.to:get_routes",
+                            ...
+                ],
+            },
+            ...,
+        )
 
     You can setup middlewares to your Starlette/FastAPI application using
     entry point ``anyblok_fastapi.middlewares``, first create a method
@@ -229,15 +231,12 @@ def create_app() -> FastAPI:
         )
     """
 
-    routes: List["BaseRoute"] = []
+    routes: List["BaseRoute"] = registry.asgi_routes.values()
     # TODO gives a way to set other routes if python package is installed
     # declaring using a new entrypoint section like middlewares
     middlewares = [
         Middleware(
             AnyblokRegistryMiddleware, get_db_name=Configuration.get("get_db_name")
-        ),
-        Middleware(
-            ExtraRoutesMiddleware, extra_routes=Configuration.get("get_extra_routes")
         ),
     ]
 

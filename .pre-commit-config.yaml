@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.2.0 # Use the ref you want to point at
+    rev: v3.3.0 # Use the ref you want to point at
     hooks:
       - id: check-yaml
       - id: trailing-whitespace
@@ -19,11 +19,12 @@ repos:
         args: ["-l", "89", "-t", "py37"]
 
   - repo: https://github.com/pre-commit/mirrors-isort
-    rev: v5.5.4
+    rev: v5.6.4
     hooks:
       - id: isort
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: "v0.782" # Use the sha / tag you want to point at
+    rev: "v0.790" # Use the sha / tag you want to point at
     hooks:
       - id: mypy
+        additional_dependencies: ["pydantic"]

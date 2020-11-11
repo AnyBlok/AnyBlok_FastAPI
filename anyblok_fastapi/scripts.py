@@ -9,7 +9,7 @@ from anyblok import configuration_post_load, load_init_function_from_entry_point
 from anyblok.blok import BlokManager
 from anyblok.config import Configuration
 from anyblok.environment import EnvironmentManager
-from anyblok_fastapi.common import preload_databases
+from anyblok_fastapi.common import preload_database
 from anyblok_fastapi.fastapi import RequestEnvironment, create_app
 
 logger = getLogger(__name__)
@@ -25,9 +25,9 @@ def asgi() -> None:
     configuration_post_load()
     BlokManager.load()
     EnvironmentManager.define_environment_cls(RequestEnvironment)
-    preload_databases(loadwithoutmigration=False)
+
     kwargs = {
-        "app": create_app(),
+        "app": create_app(preload_database(loadwithoutmigration=False)),
         "host": Configuration.get("host"),
         "port": Configuration.get("port"),
         # "uds": uds,
