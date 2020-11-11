@@ -1,7 +1,7 @@
 from os import environ
 from typing import TYPE_CHECKING
 
-from anyblok.config import AnyBlokPlugin, Configuration
+from anyblok.config import Configuration
 from anyblok.config import get_db_name as gdb
 from starlette.requests import Request
 
@@ -249,15 +249,6 @@ def add_configuration_file(parser: "AnyBlokArgumentGroup") -> None:
 
 @Configuration.add("plugins", must_be_loaded_by_unittest=True)
 def update_plugins(group: "AnyBlokArgumentGroup") -> None:
-    group.add_argument(
-        "--get-db-name-plugin",
-        dest="get_db_name",
-        type=AnyBlokPlugin,
-        default="anyblok_fastapi.config:get_db_name",
-        help="get_db_name function to use in order to properly "
-        "set registry object "
-        "on asgi request.state.anyblok_registry",
-    )
     group.set_defaults(
         Registry="anyblok_fastapi.fastapi:FastAPIRegistry",
     )

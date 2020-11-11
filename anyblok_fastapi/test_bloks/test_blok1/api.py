@@ -1,6 +1,10 @@
 import asyncio
 from typing import TYPE_CHECKING, Dict, List
 
+from fastapi import Depends
+
+from anyblok.registry import Registry
+from anyblok_fastapi.fastapi import get_registry, registry_transaction
 from starlette.requests import Request
 from starlette.responses import HTMLResponse
 
@@ -14,25 +18,41 @@ async def homepage(request: Request) -> HTMLResponse:
     return HTMLResponse("<html><body><h1>Hello, world!</h1></body></html>")
 
 
-async def create_example(
-    example: ExampleCreateSchema, request: "Request"
+def create_example(
+    example: ExampleCreateSchema,
+    request: "Request",
+    anyblok_registry: "Registry" = Depends(get_registry),
 ) -> "registry.Example":
     """Something useful to tell to API user"""
-    registry = request.state.anyblok_registry
-    db_ex = registry.Example.insert(name=example.name)
-    await asyncio.sleep(0.5)
-    db_ex.refresh()
+    with registry_transaction(anyblok_registry) as registry:
+        db_ex = registry.Example.insert(name=example.name)
+        db_ex.refresh()
     return db_ex
 
 
-async def examples(request: "Request") -> List["registry.Example"]:
-    registry = request.state.anyblok_registry
-    await asyncio.sleep(1)
-    return registry.Example.query().all()
+async def async_create_example(
+    example: ExampleCreateSchema,
+    request: "Request",
+    anyblok_registry: "Registry" = Depends(get_registry),
+) -> "registry.Example":
+    """Something useful to tell to API user"""
+    with registry_transaction(anyblok_registry) as registry:
+        db_ex = registry.Example.insert(name=example.name)
+        await asyncio.sleep(0.5)
+        db_ex.refresh()
+    return db_ex
 
 
-def example(id: int, request: "Request") -> "registry.Example":
-    registry = request.state.anyblok_registry
+def examples(
+    request: "Request", anyblok_registry: "Registry" = Depends(get_registry)
+) -> List["registry.Example"]:
+    with registry_transaction(anyblok_registry) as registry:
+        return registry.Example.query().all()
+
+
+def example(
+    id: int, request: "Request", registry: "Registry" = Depends(get_registry)
+) -> "registry.Example":
     return registry.Example.query().filter(registry.Example.id == id).one()
 
 

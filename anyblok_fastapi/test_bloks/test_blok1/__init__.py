@@ -3,10 +3,10 @@
 from typing import TYPE_CHECKING, Callable, List
 
 from fastapi.routing import APIRoute
-from starlette.responses import JSONResponse
-from starlette.routing import Route
 
 from anyblok.blok import Blok
+from starlette.responses import JSONResponse
+from starlette.routing import Route
 
 if TYPE_CHECKING:
     from types import ModuleType
@@ -47,7 +47,14 @@ class TestBlok(Blok):
             self.registry.Example.insert(name="An example")
 
     def load(self) -> None:
-        from .api import create_example, example, examples, homepage, other
+        from .api import (
+            async_create_example,
+            create_example,
+            example,
+            examples,
+            homepage,
+            other,
+        )
         from .schema import ExampleSchema
 
         self.registry.declare_routes(
@@ -65,6 +72,13 @@ class TestBlok(Blok):
                 "POST/examples/": APIRoute(
                     "/examples/",
                     create_example,
+                    methods=["POST"],
+                    response_model=ExampleSchema,
+                    response_class=JSONResponse,
+                ),
+                "POST/examples-async/": APIRoute(
+                    "/examples-async/",
+                    async_create_example,
                     methods=["POST"],
                     response_model=ExampleSchema,
                     response_class=JSONResponse,

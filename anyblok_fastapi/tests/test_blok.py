@@ -44,6 +44,18 @@ class TestFastApiTestBlok:
         assert count_before + 1 == registry.Example.query().count()
         assert registry.Example.query().get(response.json()["id"]).name == rec_name
 
+    def test_async_create_example(self, registry_testblok, webserver_test_blok):
+        registry = registry_testblok
+
+        count_before = registry.Example.query().count()
+        rec_name = "test create example"
+        response = webserver_test_blok.post(
+            "/examples-async/", data=json.dumps({"name": rec_name})
+        )
+        assert response.status_code == 200
+        assert count_before + 1 == registry.Example.query().count()
+        assert registry.Example.query().get(response.json()["id"]).name == rec_name
+
     def test_get_example(self, registry_testblok, webserver_test_blok):
         registry = registry_testblok
 
