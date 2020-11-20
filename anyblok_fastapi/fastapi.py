@@ -149,7 +149,7 @@ def create_app(registry: "Registry") -> FastAPI:
         )
     """
 
-    routes: List["BaseRoute"] = registry.asgi_routes.values()
+    routes: List["BaseRoute"] = list(registry.asgi_routes.values())
     # TODO gives a way to set other routes if python package is installed
     # declaring using a new entrypoint section like middlewares
     middlewares = []
