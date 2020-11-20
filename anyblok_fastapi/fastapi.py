@@ -53,6 +53,7 @@ def get_registry():
 @contextmanager
 def registry_transaction(registry: "Registry") -> "Registry":
     """A facility to commit transaction at the end of blok"""
+    registry.System.Cache.clear_invalidate_cache()
     try:
         yield registry
         if registry.unittest:

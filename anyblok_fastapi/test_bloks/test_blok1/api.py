@@ -1,59 +1,51 @@
 import asyncio
-from typing import TYPE_CHECKING, Dict, List
+from typing import Dict, List
 
 from fastapi import Depends
 
 from anyblok.registry import Registry
 from anyblok_fastapi.fastapi import get_registry, registry_transaction
-from starlette.requests import Request
 from starlette.responses import HTMLResponse
 
-from .schema import ExampleCreateSchema
-
-if TYPE_CHECKING:
-    from anyblok import registry
+from .schema import ExampleCreateSchema, ExampleSchema
 
 
-async def homepage(request: Request) -> HTMLResponse:
+async def homepage() -> HTMLResponse:
     return HTMLResponse("<html><body><h1>Hello, world!</h1></body></html>")
 
 
 def create_example(
     example: ExampleCreateSchema,
-    request: "Request",
     anyblok_registry: "Registry" = Depends(get_registry),
-) -> "registry.Example":
+) -> "ExampleSchema":
     """Something useful to tell to API user"""
     with registry_transaction(anyblok_registry) as registry:
-        db_ex = registry.Example.insert(name=example.name)
-        db_ex.refresh()
-    return db_ex
+        return ExampleSchema.from_orm(registry.Example.insert(name=example.name))
 
 
 async def async_create_example(
     example: ExampleCreateSchema,
-    request: "Request",
     anyblok_registry: "Registry" = Depends(get_registry),
-) -> "registry.Example":
+) -> "ExampleSchema":
     """Something useful to tell to API user"""
     with registry_transaction(anyblok_registry) as registry:
         db_ex = registry.Example.insert(name=example.name)
         await asyncio.sleep(0.5)
-        db_ex.refresh()
+        ExampleSchema.from_orm(db_ex)
     return db_ex
 
 
 def examples(
-    request: "Request", anyblok_registry: "Registry" = Depends(get_registry)
-) -> List["registry.Example"]:
+    anyblok_registry: "Registry" = Depends(get_registry),
+) -> List["ExampleSchema"]:
     with registry_transaction(anyblok_registry) as registry:
-        return registry.Example.query().all()
+        return [ExampleSchema.from_orm(el) for el in registry.Example.query().all()]
 
 
-def example(
-    id: int, request: "Request", registry: "Registry" = Depends(get_registry)
-) -> "registry.Example":
-    return registry.Example.query().filter(registry.Example.id == id).one()
+def example(id: int, registry: "Registry" = Depends(get_registry)) -> "ExampleSchema":
+    return ExampleSchema.from_orm(
+        registry.Example.query().filter(registry.Example.id == id).one()
+    )
 
 
 def other() -> Dict[str, str]:
