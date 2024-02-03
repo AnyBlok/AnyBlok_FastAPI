@@ -43,9 +43,15 @@ def define_uvicorn_option(group: "AnyBlokArgumentGroup") -> None:
         default=8000,
         help="Bind socket to this port.",
     )
-    # group.add_argument("--uds", type=str, default=None, help="Bind to a UNIX domain socket.")
     # group.add_argument(
-    #     "--fd", type=int, default=None, help="Bind to socket from this file descriptor."
+    #     "--uds",
+    #     type=str,
+    #     default=None,
+    #     help="Bind to a UNIX domain socket."
+    # )
+    # group.add_argument(
+    #     "--fd", type=int, default=None,
+    #     help="Bind to socket from this file descriptor."
     # )
     group.add_argument(
         "--debug", action="store_true", default=False, help="Enable debug mode."
@@ -57,15 +63,16 @@ def define_uvicorn_option(group: "AnyBlokArgumentGroup") -> None:
     #     "--reload-dir",
     #     "reload_dirs",
     #     multiple=True,
-    #     help="Set reload directories explicitly, instead of using the current working"
-    #     " directory.",
+    #     help="Set reload directories explicitly, "
+    #     "instead of using the current working directory.",
     # )
     group.add_argument(
         "--workers",
         default=None,
         type=int,
-        help="Number of worker processes. Defaults to the $WEB_CONCURRENCY environment"
-        " variable if available. Not valid with --reload.",
+        help="Number of worker processes. Defaults to the "
+        "$WEB_CONCURRENCY environment variable if available. "
+        "Not valid with --reload.",
     )
     # group.add_argument(
     #     "--loop",
@@ -139,8 +146,8 @@ def define_uvicorn_option(group: "AnyBlokArgumentGroup") -> None:
         "--proxy-headers/--no-proxy-headers",
         action="store_true",
         default=True,
-        help="Enable/Disable X-Forwarded-Proto, X-Forwarded-For, X-Forwarded-Port to "
-        "populate remote address info.",
+        help="Enable/Disable X-Forwarded-Proto, X-Forwarded-For, "
+        "X-Forwarded-Port to populate remote address info.",
     )
     group.add_argument(
         "--forwarded-allow-ips",
@@ -153,13 +160,15 @@ def define_uvicorn_option(group: "AnyBlokArgumentGroup") -> None:
         "--root-path",
         type=str,
         default="",
-        help="Set the ASGI 'root_path' for applications submounted below a given URL path.",
+        help="Set the ASGI 'root_path' for applications "
+        "submounted below a given URL path.",
     )
     group.add_argument(
         "--limit-concurrency",
         type=int,
         default=None,
-        help="Maximum number of concurrent connections or tasks to allow, before issuing"
+        help="Maximum number of concurrent connections or "
+        "tasks to allow, before issuing"
         " HTTP 503 responses.",
     )
     group.add_argument(
@@ -172,13 +181,14 @@ def define_uvicorn_option(group: "AnyBlokArgumentGroup") -> None:
         "--limit-max-requests",
         type=int,
         default=None,
-        help="Maximum number of requests to service before terminating the process.",
+        help="Maximum number of requests to service " "before terminating the process.",
     )
     group.add_argument(
         "--timeout-keep-alive",
         type=int,
         default=5,
-        help="Close Keep-Alive connections if no new data is received within this timeout.",
+        help="Close Keep-Alive connections if no new "
+        "data is received within this timeout.",
     )
     # group.add_argument(
     #     "--ssl-keyfile", type=str, default=None, help="SSL key file"
@@ -222,15 +232,19 @@ def define_uvicorn_option(group: "AnyBlokArgumentGroup") -> None:
     #     "--header",
     #     "headers",
     #     multiple=True,
-    #     help="Specify custom default HTTP response headers as a Name:Value pair",
+    #     help=(
+    #       "Specify custom default HTTP response headers "
+    #       "as a Name:Value pair",
+    #     )
     # )
     # group.add_argument(
     #     "--app-dir",
     #     "app_dir",
     #     default=".",
 
-    #     help="Look for APP in the specified directory, by adding this to the PYTHONPATH."
-    #     " Defaults to the current working directory.",
+    #     help="Look for APP in the specified directory, "
+    #     "by adding this to the PYTHONPATH. "
+    #     "Defaults to the current working directory.",
     # )
 
 
@@ -244,11 +258,4 @@ def add_configuration_file(parser: "AnyBlokArgumentGroup") -> None:
     )
     parser.add_argument(
         "--without-auto-migration", dest="withoutautomigration", action="store_true"
-    )
-
-
-@Configuration.add("plugins", must_be_loaded_by_unittest=True)
-def update_plugins(group: "AnyBlokArgumentGroup") -> None:
-    group.set_defaults(
-        Registry="anyblok_fastapi.fastapi:FastAPIRegistry",
     )

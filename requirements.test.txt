@@ -4,3 +4,5 @@ flake8
 WebTest
 sphinx
 sphinxcontrib-httpdomain
+httpx
+psycopg[binary]

@@ -1,16 +1,25 @@
+# This file is a part of the AnyBlok / FastAPI
+#
+#    Copyright (C) 2020 Pierre Verkest <pierreverkest84@gmail.com>
+#    Copyright (C) 2024 Pierre Verkest <pierreverkest84@gmail.com>
+#
+# This Source Code Form is subject to the terms of the Mozilla Public License,
+# v. 2.0. If a copy of the MPL was not distributed with this file,You can
+# obtain one at http://mozilla.org/MPL/2.0/.
 import asyncio
 from typing import Dict, List
 
-from fastapi import Depends
-
 from anyblok.registry import Registry
-from anyblok_fastapi.fastapi import get_registry, registry_transaction
+from fastapi import Depends
+from starlette.requests import Request
 from starlette.responses import HTMLResponse
+
+from anyblok_fastapi.fastapi import get_registry, registry_transaction
 
 from .schema import ExampleCreateSchema, ExampleSchema
 
 
-async def homepage() -> HTMLResponse:
+async def homepage(request: Request) -> HTMLResponse:
     return HTMLResponse("<html><body><h1>Hello, world!</h1></body></html>")
 
 

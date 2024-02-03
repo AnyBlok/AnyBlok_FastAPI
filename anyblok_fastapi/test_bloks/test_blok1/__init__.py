@@ -2,9 +2,8 @@
 """
 from typing import TYPE_CHECKING, Callable, List
 
-from fastapi.routing import APIRoute
-
 from anyblok.blok import Blok
+from fastapi.routing import APIRoute
 from starlette.responses import JSONResponse
 from starlette.routing import Route
 
@@ -44,7 +43,7 @@ class TestBlok(Blok):
         """Update blok"""
         # if we install this blok in the database we add a new record
         if not latest:
-            self.registry.Example.insert(name="An example")
+            self.anyblok.Example.insert(name="An example")
 
     def load(self) -> None:
         from .api import (
@@ -57,7 +56,7 @@ class TestBlok(Blok):
         )
         from .schema import ExampleSchema
 
-        self.registry.declare_routes(
+        self.anyblok.declare_routes(
             {
                 "home": Route("/", homepage, methods=["GET"]),
                 "GET/examples/": APIRoute(

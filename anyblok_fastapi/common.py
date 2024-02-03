@@ -10,7 +10,6 @@ logger = getLogger(__name__)
 def preload_database(loadwithoutmigration: bool = True) -> "Registry":
     # Methode copied from anyblok_pyramid.common"""
     dbname = Configuration.get("db_name")
-    Registry = Configuration.get("Registry")
     logger.info("Preload the database : %r", dbname)
     if Registry.db_exists(db_name=dbname):
         registry = get_registry_for(dbname, loadwithoutmigration, log_repeat=True)

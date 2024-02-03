@@ -1,0 +1,26 @@
+fix = true
+
+[lint]
+extend-select = [
+    "B",
+    "C90",
+    "E501",  # line too long (default 88)
+    "I",  # isort
+]
+exclude = ["setup/*"]
+
+[format]
+exclude = ["setup/*"]
+
+[lint.per-file-ignores]
+"api.py" = ["B008"]  # ignore perform function call `Depends` in argument defaults
+
+[lint.isort]
+section-order = ["future", "standard-library", "third-party", "odoo", "odoo-addons", "first-party", "local-folder"]
+
+[lint.isort.sections]
+"odoo" = ["odoo"]
+"odoo-addons" = ["odoo.addons"]
+
+[lint.mccabe]
+max-complexity = 10

@@ -1,12 +1,12 @@
 from contextlib import contextmanager
 from logging import getLogger
-from typing import TYPE_CHECKING, Dict, List
-
-from fastapi import FastAPI
-from pkg_resources import iter_entry_points
+from typing import TYPE_CHECKING, Dict, List, Optional
 
 from anyblok.config import Configuration
 from anyblok.registry import Registry
+from fastapi import FastAPI
+from pkg_resources import iter_entry_points
+
 from anyblok_fastapi.common import get_registry_for
 
 if TYPE_CHECKING:
@@ -16,20 +16,22 @@ if TYPE_CHECKING:
 logger = getLogger(__name__)
 
 
-class FastAPIRegistry(Registry):
+# # Monkey patch Registry to hold fastapi routes
+def declare_routes(self, routes: Optional[Dict[str, "BaseRoute"]] = None) -> None:
+    if not routes:
+        routes = {}
+    self.asgi_routes.update(routes)
 
-    asgi_routes: Dict[str, "BaseRoute"] = {}
 
-    def declare_routes(self, routes: Dict = None) -> None:
-        if not routes:
-            routes = {}
-        self.asgi_routes.update(routes)
+# this is an Optional[Dict[str, "BaseRoute"]]
+Registry.asgi_routes = {}
+Registry.declare_routes = declare_routes
 
 
 def get_registry():
     """Facility to get anyblok registry in route method
 
-    You (as a developer) have to manage commiting transaction.
+    You (as a developer) have to manage committing transactions.
     **Warning** Avoid to use different SQL transaction in
     different async method as sqlAlchemy session are local to the current
     thread
@@ -148,7 +150,6 @@ def create_app(registry: "Registry") -> FastAPI:
             ...,
         )
     """
-
     routes: List["BaseRoute"] = list(registry.asgi_routes.values())
     # TODO gives a way to set other routes if python package is installed
     # declaring using a new entrypoint section like middlewares
