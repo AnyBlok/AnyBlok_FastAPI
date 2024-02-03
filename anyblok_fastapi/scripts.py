@@ -1,13 +1,20 @@
+# This file is a part of the AnyBlok / FastAPI
+#
+#    Copyright (C) 2020 Pierre Verkest <pierreverkest84@gmail.com>
+#
+# This Source Code Form is subject to the terms of the Mozilla Public License,
+# v. 2.0. If a copy of the MPL was not distributed with this file,You can
+# obtain one at http://mozilla.org/MPL/2.0/.
 import sys
 from copy import copy
 from logging import getLogger
 from typing import List
 
-from uvicorn.main import run
-
 from anyblok import configuration_post_load, load_init_function_from_entry_points
 from anyblok.blok import BlokManager
 from anyblok.config import Configuration
+from uvicorn.main import run
+
 from anyblok_fastapi.common import preload_database
 from anyblok_fastapi.fastapi import create_app
 

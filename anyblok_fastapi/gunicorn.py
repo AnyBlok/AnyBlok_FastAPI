@@ -1,29 +1,27 @@
-# This file is a part of the AnyBlok / Pyramid project
+# This file is a part of the AnyBlok / FastAPI
 #
-#    Copyright (C) 2015 Jean-Sebastien SUZANNE <jssuzanne@anybox.fr>
-#    Copyright (C) 2016 Jean-Sebastien SUZANNE <jssuzanne@anybox.fr>
+#    Copyright (C) 2020 Pierre Verkest <pierreverkest84@gmail.com>
 #
 # This Source Code Form is subject to the terms of the Mozilla Public License,
 # v. 2.0. If a copy of the MPL was not distributed with this file,You can
 # obtain one at http://mozilla.org/MPL/2.0/.
 import argparse
 from logging import getLogger
-from typing import TYPE_CHECKING, Any
-
-from gunicorn import __version__
-from gunicorn.app.base import Application
-from gunicorn.config import Config as GunicornConfig
+from typing import TYPE_CHECKING, Any, Optional
 
 from anyblok import configuration_post_load, load_init_function_from_entry_points
 from anyblok.blok import BlokManager
 from anyblok.config import Configuration, getParser
+from gunicorn import __version__
+from gunicorn.app.base import Application
+from gunicorn.config import Config as GunicornConfig
+
 from anyblok_fastapi.common import preload_database
 from anyblok_fastapi.fastapi import create_app
 
 if TYPE_CHECKING:
-    from fastapi import FastAPI
-
     from anyblok.config import AnyBlokArgumentParser
+    from fastapi import FastAPI
 
 
 logger = getLogger(__name__)
@@ -31,7 +29,10 @@ logger = getLogger(__name__)
 
 class Config(GunicornConfig):
     def __init__(
-        self, usage: str = None, prog: str = None, application: str = None
+        self,
+        usage: Optional[str] = None,
+        prog: Optional[str] = None,
+        application: Optional[str] = None,
     ) -> None:
         super(Config, self).__init__(usage=usage, prog=prog)
         self.application = application
