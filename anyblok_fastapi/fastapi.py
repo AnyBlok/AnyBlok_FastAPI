@@ -8,14 +8,15 @@
 # obtain one at http://mozilla.org/MPL/2.0/.
 from contextlib import contextmanager
 from logging import getLogger
-from typing import TYPE_CHECKING, Dict, List, Optional
+from typing import TYPE_CHECKING, List
 
+from anyblok.blok import BlokManager
 from anyblok.config import Configuration
+from anyblok.registry import Registry
 from fastapi import FastAPI
 from pkg_resources import iter_entry_points
 
 from anyblok_fastapi.common import get_registry_for
-from anyblok.registry import Registry, RegistryManager
 
 if TYPE_CHECKING:
     from anyblok.registry import Registry
@@ -23,7 +24,6 @@ if TYPE_CHECKING:
 
 
 logger = getLogger(__name__)
-
 
 
 def get_registry():
@@ -64,13 +64,24 @@ def registry_transaction(registry: "Registry") -> "Registry":
         registry.rollback()
         raise ex
 
-class FastAPIRegistry:
-    asgi_routes = {}
-    
-    def declare_routes(self, routes: Optional[Dict[str, "BaseRoute"]] = None) -> None:
-        if not routes:
-            routes = {}
-        self.asgi_routes.update(routes)
+
+def get_blok_routes(registry):
+    """loop on each blok, keep the order of the blok to load the
+    pyramid config. The blok must declare the meth
+    ``pyramid_load_config``::
+
+        def pyramid_load_config(config):
+            config.add_route('hello', '/hello/{name}/')
+            ...
+
+    """
+    routes = {}
+    for blok_name in registry.System.Blok.list_by_state("installed"):
+        Blok = BlokManager.get(blok_name)
+        if hasattr(Blok, "fastapi_routes"):
+            logger.debug("Load configuration from: %r" % blok_name)
+            Blok.fastapi_routes(routes)
+    return routes.values()
 
 
 def create_app(registry: "Registry") -> FastAPI:
@@ -156,7 +167,7 @@ def create_app(registry: "Registry") -> FastAPI:
             ...,
         )
     """
-    routes: List["BaseRoute"] = list(registry.asgi_routes.values())
+    routes: List["BaseRoute"] = get_blok_routes(registry)
     # TODO gives a way to set other routes if python package is installed
     # declaring using a new entrypoint section like middlewares
     middlewares = []

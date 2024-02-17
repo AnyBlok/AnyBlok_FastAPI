@@ -30,7 +30,6 @@ def asgi() -> None:
     sys.argv = argv
     configuration_post_load()
     BlokManager.load()
-    register_anyblok_registry_mixin()
     kwargs = {
         "app": create_app(preload_database(loadwithoutmigration=False)),
         "host": Configuration.get("host"),

@@ -53,7 +53,8 @@ class TestBlok(Blok):
         if not latest:
             self.anyblok.Example.insert(name="An example")
 
-    def load(self) -> None:
+    @classmethod
+    def fastapi_routes(cls, routes) -> None:
         from .api import (
             async_create_example,
             create_example,
@@ -64,7 +65,7 @@ class TestBlok(Blok):
         )
         from .schema import ExampleSchema
 
-        self.anyblok.declare_routes(
+        routes.update(
             {
                 "home": Route("/", homepage, methods=["GET"]),
                 "GET/examples/": APIRoute(

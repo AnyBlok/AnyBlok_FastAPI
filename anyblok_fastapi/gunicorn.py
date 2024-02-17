@@ -17,7 +17,7 @@ from gunicorn.app.base import Application
 from gunicorn.config import Config as GunicornConfig
 
 from anyblok_fastapi.common import preload_database
-from anyblok_fastapi.fastapi import create_app, register_anyblok_registry_mixin
+from anyblok_fastapi.fastapi import create_app
 
 if TYPE_CHECKING:
     from anyblok.config import AnyBlokArgumentParser
