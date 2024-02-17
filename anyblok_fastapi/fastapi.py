@@ -11,29 +11,19 @@ from logging import getLogger
 from typing import TYPE_CHECKING, Dict, List, Optional
 
 from anyblok.config import Configuration
-from anyblok.registry import Registry
 from fastapi import FastAPI
 from pkg_resources import iter_entry_points
 
 from anyblok_fastapi.common import get_registry_for
+from anyblok.registry import Registry, RegistryManager
 
 if TYPE_CHECKING:
+    from anyblok.registry import Registry
     from starlette.routing import BaseRoute
 
 
 logger = getLogger(__name__)
 
-
-# # Monkey patch Registry to hold fastapi routes
-def declare_routes(self, routes: Optional[Dict[str, "BaseRoute"]] = None) -> None:
-    if not routes:
-        routes = {}
-    self.asgi_routes.update(routes)
-
-
-# this is an Optional[Dict[str, "BaseRoute"]]
-Registry.asgi_routes = {}
-Registry.declare_routes = declare_routes
 
 
 def get_registry():
@@ -73,6 +63,18 @@ def registry_transaction(registry: "Registry") -> "Registry":
     except Exception as ex:
         registry.rollback()
         raise ex
+
+class FastAPIRegistry:
+    asgi_routes = {}
+    
+    def declare_routes(self, routes: Optional[Dict[str, "BaseRoute"]] = None) -> None:
+        if not routes:
+            routes = {}
+        self.asgi_routes.update(routes)
+
+
+def register_anyblok_registry_mixin():
+    RegistryManager.register_mixin("FastAPI", FastAPIRegistry)
 
 
 def create_app(registry: "Registry") -> FastAPI:
