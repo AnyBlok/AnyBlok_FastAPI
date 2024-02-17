@@ -104,6 +104,5 @@ class ASGIApplication(Application):
         configuration_post_load()
 
     def load(self) -> "FastAPI":
-        register_anyblok_registry_mixin()
         BlokManager.load(entry_points=("bloks",))
         return create_app(preload_database())

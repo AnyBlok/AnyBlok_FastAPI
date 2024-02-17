@@ -47,6 +47,9 @@ setup(
         "anyblok.init": [
             "anyblok_fastapi_config=anyblok_fastapi:anyblok_init_config",
         ],
+        "anyblok.registry.mixin": [
+            "fastapi=anyblok_fastapi.fastapi:FastAPIRegistry",
+        ],
         "test_bloks": [
             "test-fastapi-blok1=anyblok_fastapi.test_bloks.test_blok1:TestBlok",
         ],

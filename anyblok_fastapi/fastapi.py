@@ -73,10 +73,6 @@ class FastAPIRegistry:
         self.asgi_routes.update(routes)
 
 
-def register_anyblok_registry_mixin():
-    RegistryManager.register_mixin("FastAPI", FastAPIRegistry)
-
-
 def create_app(registry: "Registry") -> FastAPI:
     """Create FastAPI App
 
