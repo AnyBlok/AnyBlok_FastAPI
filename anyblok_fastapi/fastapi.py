@@ -7,6 +7,7 @@
 # v. 2.0. If a copy of the MPL was not distributed with this file,You can
 # obtain one at http://mozilla.org/MPL/2.0/.
 from contextlib import contextmanager
+from importlib.metadata import entry_points
 from logging import getLogger
 from typing import TYPE_CHECKING, List
 
@@ -14,7 +15,6 @@ from anyblok.blok import BlokManager
 from anyblok.config import Configuration
 from anyblok.registry import Registry
 from fastapi import FastAPI
-from pkg_resources import iter_entry_points
 
 from anyblok_fastapi.common import get_registry_for
 
@@ -172,12 +172,12 @@ def create_app(registry: "Registry") -> FastAPI:
     # declaring using a new entrypoint section like middlewares
     middlewares = []
 
-    for method in iter_entry_points("anyblok_fastapi.middlewares"):
-        logger.debug("Add FastAPI middlewares: %r" % method.name)
+    for method in entry_points(group="anyblok_fastapi.middlewares"):
+        logger.debug("Add FastAPI middlewares: %r", method.name)
         middlewares.extend(method.load()())
 
-    for method in iter_entry_points("anyblok_fastapi.routes"):
-        logger.debug("Add FastAPI routes: %r" % method.name)
+    for method in entry_points(group="anyblok_fastapi.routes"):
+        logger.debug("Add FastAPI routes: %r", method.name)
         routes.extend(method.load()())
 
     return FastAPI(routes=routes, middleware=middlewares)
