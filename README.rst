@@ -24,9 +24,9 @@ TODO
     - [ ] erreur SQLA genre un enregistrement non trouvé avec un one
     - [ ] erreur nécessitant un rollback
 - [ ] tester le mode debug et hot reload
-- [ ] Permettre la déclaration d'un nouveau type Schema, qui permettra la surcharge dynamique et à chaud des blocks
-- [ ] Permettre la déclaration d'une méthode pour paramétrer des nouvelles routes au niveau du package python
-- [ ] Permettre la déclaration d'une méthode pour ajouter des middlware starlette au niveau du package python
+- [ ] Permettre la déclaration d'un nouveau type Schema, qui permettra la surcharge dynamique et à chaud des blocks (pydantic extandable ?)
+- [x] Permettre la déclaration d'une méthode pour paramétrer des nouvelles routes au niveau du package python
+- [x] Permettre la déclaration d'une méthode pour ajouter des middlware starlette au niveau du package python
 
 Features
 --------

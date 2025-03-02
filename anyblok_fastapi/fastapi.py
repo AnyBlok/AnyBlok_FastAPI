@@ -6,6 +6,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License,
 # v. 2.0. If a copy of the MPL was not distributed with this file,You can
 # obtain one at http://mozilla.org/MPL/2.0/.
+import warnings
 from contextlib import contextmanager
 from importlib.metadata import entry_points
 from logging import getLogger
@@ -81,14 +82,41 @@ def get_blok_routes(registry):
         if hasattr(Blok, "fastapi_routes"):
             logger.debug("Load configuration from: %r" % blok_name)
             Blok.fastapi_routes(routes)
+            warnings.warn(
+                f"Using 'fastapi_routes' method on Blok {blok_name} is deprecated."
+                "You should use prepare_fastapi instead",
+                DeprecationWarning,
+                stacklevel=1,
+            )
     return routes.values()
+
+
+def prepare_fastapi_from_installed_bloks(
+    registry: "Registry", fastapi_app: FastAPI
+) -> None:
+    for blok_name in registry.System.Blok.list_by_state("installed"):
+        Blok = BlokManager.get(blok_name)
+        if hasattr(Blok, "prepare_fastapi"):
+            logger.debug("Prepare fastapi from blok: %r" % blok_name)
+            Blok.prepare_fastapi(fastapi_app)
 
 
 def create_app(registry: "Registry") -> FastAPI:
     """Create FastAPI App
 
-    At the time writting routes are declared on bloks and are dynamically
-    loads according if blok is loaded or not at startup.
+    The suggest way to setup the fastapi application is to define
+    the prepare_fastapi method on your blok to dynamically
+    loads routes/middlewares/... according if blok is installed or not
+    at startup::
+
+
+    class MyBlok(Blok):
+
+        @classmethod
+        def prepare_fastapi(cls, app: FastApi) -> None:
+            from .main import router
+            app.include_router(router)
+
 
     You can setup an entry point to add new routes to your Starlette/FastAPI
     application using entry point ``anyblok_fastapi.routes``:
@@ -180,4 +208,7 @@ def create_app(registry: "Registry") -> FastAPI:
         logger.debug("Add FastAPI routes: %r", method.name)
         routes.extend(method.load()())
 
-    return FastAPI(routes=routes, middleware=middlewares)
+    app = FastAPI(routes=routes, middleware=middlewares)
+    prepare_fastapi_from_installed_bloks(registry, app)
+
+    return app

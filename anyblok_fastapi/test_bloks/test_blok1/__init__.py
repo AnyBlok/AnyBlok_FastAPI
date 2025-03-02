@@ -11,6 +11,7 @@
 from typing import TYPE_CHECKING, Callable, List
 
 from anyblok.blok import Blok
+from fastapi import FastAPI
 from fastapi.routing import APIRoute
 from starlette.responses import JSONResponse
 from starlette.routing import Route
@@ -101,3 +102,9 @@ class TestBlok(Blok):
                 "other": APIRoute("/other", other, response_class=JSONResponse),
             }
         )
+
+    @classmethod
+    def prepare_fastapi(cls, app: FastAPI) -> None:
+        from .apiv2 import router
+
+        app.include_router(router)
