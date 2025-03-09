@@ -14,7 +14,7 @@ from fastapi.testclient import TestClient
 from anyblok_fastapi.fastapi import create_app
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def webserver(request, configuration_loaded, init_session):
     with TestClient(
         create_app(
