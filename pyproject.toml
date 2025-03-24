@@ -1,0 +1,59 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "anyblok-fastapi"
+version = "0.2.0"
+description = "AnyBlok with FastAPI"
+readme = "README.rst"
+license = "Apache-2.0"
+authors = [
+  { name = "Pierre Verkest", email = "pierre@verkest.fr" },
+]
+url = "https://github.com/AnyBlok/AnyBlok_FastAPI"
+dependencies = [
+"anyblok",
+    "fastapi",
+    "gunicorn",
+    "sqlalchemy",
+    "uvicorn[standard]",
+]
+
+[project.scripts]
+anyblok_uvicorn="anyblok_fastapi.scripts:asgi"
+gunicorn_anyblok_uvicorn="anyblok_fastapi.scripts:gunicorn_asgi"
+
+
+[project.entry-points."anyblok.init"]
+anyblok_fastapi_config="anyblok_fastapi.init:anyblok_init_config"
+
+[project.entry-points.test_bloks]
+test-fastapi-blok1="anyblok_fastapi.test_bloks.test_blok1:TestBlok"
+
+
+[dependency-groups]
+dev = [
+  "pytest",
+  "pytest-cov",
+  "httpx>=0.28.1",
+  "pytest-asyncio",
+  "WebTest",
+  "sphinx",
+  "sphinxcontrib-httpdomain",
+  "psycopg[binary]",
+]
+
+
+
+[tool.coverage.run]
+branch = true
+omit = [
+  "__init__.py",
+  "*/tests/*",
+  "conftest.py",
+  "config.py",
+]
+
+[tool.coverage.report]
+show_missing = true

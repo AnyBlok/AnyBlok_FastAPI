@@ -16,21 +16,12 @@ help:
 	@python -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
 
 setup: ## install python project dependencies
-	pip install --upgrade pip wheel
-	pip install .
-	anyblok_createdb -c app.cfg || anyblok_updatedb -c app.cfg
+	uv sync --no-dev
+	uv run  --no-dev anyblok_createdb -c app.cfg || uv run  --no-dev anyblok_updatedb -c app.cfg
 
 setup-tests: ## install python project dependencies for tests
-	pip install --upgrade pip wheel
-	pip install --upgrade -r requirements.test.txt
-	pip install .
-	anyblok_createdb -c app.test.cfg || anyblok_updatedb -c app.test.cfg
-
-setup-dev: ## install python project dependencies for development
-	pip install --upgrade pip wheel
-	pip install --upgrade -r requirements.dev.txt
-	python setup.py develop
-	anyblok_createdb -c app.dev.cfg || anyblok_updatedb -c app.dev.cfg
+	uv sync
+	uv run anyblok_createdb -c app.test.cfg || uv run anyblok_updatedb -c app.test.cfg
 
 clean: clean-build clean-pyc clean-test ## remove all build, test, coverage and Python artifacts
 
@@ -52,8 +43,5 @@ clean-test: ## remove test artifacts
 	rm -fr .pytest_cache
 	rm -f .coverage
 
-lint: ## check style with flake8
-	flake8 anyblok_fastapi
-
 test: ## run tests
-	ANYBLOK_CONFIG_FILE=app.test.cfg py.test -v -s anyblok_fastapi
+	ANYBLOK_CONFIG_FILE=app.test.cfg uv run pytest -v -s anyblok_fastapi
