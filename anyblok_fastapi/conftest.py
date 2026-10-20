@@ -7,7 +7,7 @@
 # obtain one at http://mozilla.org/MPL/2.0/.
 import pytest
 from anyblok.config import Configuration
-from anyblok.conftest import *  # noqa
+from anyblok.conftest import *
 from anyblok.registry import RegistryManager
 from fastapi.testclient import TestClient
 

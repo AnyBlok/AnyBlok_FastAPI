@@ -13,7 +13,8 @@ authors = [
 ]
 url = "https://github.com/AnyBlok/AnyBlok_FastAPI"
 dependencies = [
-"anyblok",
+    "anyblok",
+    "anyblok-starlette>=0.1.0",
     "fastapi",
     "gunicorn",
     "sqlalchemy",

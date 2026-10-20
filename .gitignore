@@ -1,1 +1,8 @@
 src/
+__pycache__/
+*.py[cod]
+*$py.class
+.coverage
+htmlcov/
+*.egg-info/
+.pytest_cache/

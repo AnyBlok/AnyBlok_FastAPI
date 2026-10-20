@@ -7,7 +7,7 @@
 # obtain one at http://mozilla.org/MPL/2.0/.
 import argparse
 from logging import getLogger
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 
 from anyblok import configuration_post_load, load_init_function_from_entry_points
 from anyblok.blok import BlokManager
@@ -30,11 +30,11 @@ logger = getLogger(__name__)
 class Config(GunicornConfig):
     def __init__(
         self,
-        usage: Optional[str] = None,
-        prog: Optional[str] = None,
-        application: Optional[str] = None,
+        usage: str | None = None,
+        prog: str | None = None,
+        application: str | None = None,
     ) -> None:
-        super(Config, self).__init__(usage=usage, prog=prog)
+        super().__init__(usage=usage, prog=prog)
         self.application = application
 
     def parser(self) -> "AnyBlokArgumentParser":
@@ -84,7 +84,7 @@ class ASGIApplication(Application):
         usage = conf.get("usage")
         prog = conf.get("prog")
         self.application = application
-        super(ASGIApplication, self).__init__(usage=usage, prog=prog)
+        super().__init__(usage=usage, prog=prog)
 
     def load_default_config(self) -> None:
         self.cfg = Config(self.usage, prog=self.prog, application=self.application)
@@ -95,7 +95,7 @@ class ASGIApplication(Application):
 
         # get the configuration save in AnyBlok configuration in
         # gunicorn configuration
-        for name in Configuration.configuration.keys():
+        for name in Configuration.configuration:
             if name in self.cfg.settings:
                 value = Configuration.get(name)
                 if value:

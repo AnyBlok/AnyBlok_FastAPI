@@ -6,9 +6,10 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License,
 # v. 2.0. If a copy of the MPL was not distributed with this file,You can
 # obtain one at http://mozilla.org/MPL/2.0/.
-"""Blok declaration example
-"""
-from typing import TYPE_CHECKING, Callable, List
+"""Blok declaration example"""
+
+from collections.abc import Callable
+from typing import TYPE_CHECKING, ClassVar
 
 from anyblok.blok import Blok
 from fastapi import FastAPI
@@ -27,7 +28,7 @@ class TestBlok(Blok):
 
     version = "0.1.0"
     author = "Pierre Verkest"
-    required = [
+    required: ClassVar[list[str]] = [
         "anyblok-core",
     ]
 
@@ -43,7 +44,7 @@ class TestBlok(Blok):
         adding Blok at runtime
         """
         from . import model  # noqa
-        from . import schema  # noqa
+        from . import schema
 
         reload(model)
         reload(schema)
@@ -75,7 +76,7 @@ class TestBlok(Blok):
                     methods=[
                         "GET",
                     ],
-                    response_model=List[ExampleSchema],
+                    response_model=list[ExampleSchema],
                     response_class=JSONResponse,
                 ),
                 "POST/examples/": APIRoute(

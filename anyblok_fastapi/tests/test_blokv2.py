@@ -1,5 +1,3 @@
-import json
-
 import pytest
 from fastapi.testclient import TestClient
 
@@ -37,9 +35,7 @@ class TestFastApiTestBlok:
 
         count_before = registry.Example.query().count()
         rec_name = "test create example"
-        response = webserver_test_blok.post(
-            "/v2/examples/", data=json.dumps({"name": rec_name})
-        )
+        response = webserver_test_blok.post("/v2/examples/", json={"name": rec_name})
         assert response.status_code == 200
         assert count_before + 1 == registry.Example.query().count()
         assert registry.Example.query().get(response.json()["id"]).name == rec_name
@@ -50,7 +46,7 @@ class TestFastApiTestBlok:
         count_before = registry.Example.query().count()
         rec_name = "test create example"
         response = webserver_test_blok.post(
-            "/v2/examples-async/", data=json.dumps({"name": rec_name})
+            "/v2/examples-async/", json={"name": rec_name}
         )
         assert response.status_code == 200
         assert count_before + 1 == registry.Example.query().count()

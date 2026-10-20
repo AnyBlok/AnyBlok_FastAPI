@@ -7,7 +7,7 @@
 # v. 2.0. If a copy of the MPL was not distributed with this file,You can
 # obtain one at http://mozilla.org/MPL/2.0/.
 import asyncio
-from typing import Annotated, Dict, List
+from typing import Annotated
 
 from anyblok.registry import Registry
 from fastapi import APIRouter, Depends
@@ -62,7 +62,7 @@ async def async_create_example(
 
 def examples(
     anyblok_registry: Annotated["Registry", Depends(get_registry)],
-) -> List["ExampleSchema"]:
+) -> list["ExampleSchema"]:
     with registry_transaction(anyblok_registry) as registry:
         return [
             ExampleSchema.model_validate(el) for el in registry.Example.query().all()
@@ -84,5 +84,5 @@ def example(
 
 
 @router.get("/other", response_class=JSONResponse)
-def other() -> Dict[str, str]:
+def other() -> dict[str, str]:
     return {"message": "hello world"}

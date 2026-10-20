@@ -13,7 +13,9 @@ exclude = ["setup/*"]
 exclude = ["setup/*"]
 
 [lint.per-file-ignores]
-"api.py" = ["B008"]  # ignore perform function call `Depends` in argument defaults
+"api.py" = ["B008"]
+"apiv2.py" = ["B008"]
+"crud.py" = ["B008", "C901"]
 
 [lint.isort]
 section-order = ["future", "standard-library", "third-party", "odoo", "odoo-addons", "first-party", "local-folder"]

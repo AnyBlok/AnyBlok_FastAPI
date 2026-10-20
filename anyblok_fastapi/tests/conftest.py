@@ -1,1 +1,1 @@
-from anyblok.tests.conftest import *  # noqa
+from anyblok.tests.conftest import *
