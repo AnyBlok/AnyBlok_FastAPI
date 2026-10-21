@@ -6,22 +6,34 @@ from anyblok_fastapi.fastapi import create_app
 
 
 class TestFastApiCRUD:
+    @pytest.fixture(scope="class")
+    @classmethod
+    def installed_blok(cls, registry_testblok):
+        registry_testblok.upgrade(install=("test-fastapi-blok1",))
+        return registry_testblok
+
     @pytest.fixture(autouse=True)
-    def transact(self, request, registry_testblok):
+    def transact(self, request, registry_testblok, installed_blok):
         transaction = registry_testblok.begin_nested()
-        request.addfinalizer(transaction.rollback)
+
+        def fin():
+            if transaction.is_active and not any(
+                getattr(t[1], "_deactivated_from_connection", False)
+                or not getattr(t[1], "is_active", True)
+                for t in transaction._connections.values()
+            ):
+                transaction.rollback()
+
+        request.addfinalizer(fin)
 
     @pytest.fixture
-    def crud_app(self, registry_testblok):
-        registry_testblok.upgrade(install=("test-fastapi-blok1",))
+    def crud_app(self, registry_testblok, installed_blok):
         app = create_app(registry_testblok)
         crud_router = create_crud_router("Example", prefix="/crud/examples")
         app.include_router(crud_router)
-        with TestClient(app) as client:
-            yield client
+        return TestClient(app)
 
-    def test_schema_generation(self, registry_testblok):
-        registry_testblok.upgrade(install=("test-fastapi-blok1",))
+    def test_schema_generation(self, registry_testblok, installed_blok):
         schemas = generate_pydantic_models(registry_testblok.Example)
         assert "read" in schemas
         assert "create" in schemas

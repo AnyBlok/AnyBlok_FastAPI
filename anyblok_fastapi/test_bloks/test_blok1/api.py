@@ -26,7 +26,6 @@ def create_example(
     example: ExampleCreateSchema,
     anyblok_registry: "Registry" = Depends(get_registry),
 ) -> "ExampleSchema":
-    """Something useful to tell to API user"""
     with registry_transaction(anyblok_registry) as registry:
         return ExampleSchema.model_validate(registry.Example.insert(name=example.name))
 

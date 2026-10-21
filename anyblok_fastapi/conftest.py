@@ -7,7 +7,7 @@
 # obtain one at http://mozilla.org/MPL/2.0/.
 import pytest
 from anyblok.config import Configuration
-from anyblok.conftest import *
+from anyblok.conftest import *  # noqa: F403
 from anyblok.registry import RegistryManager
 from fastapi.testclient import TestClient
 

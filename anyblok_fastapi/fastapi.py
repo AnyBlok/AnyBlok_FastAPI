@@ -12,7 +12,7 @@ from collections.abc import Generator
 from contextlib import contextmanager
 from importlib.metadata import entry_points
 from logging import getLogger
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from anyblok.blok import BlokManager
 from anyblok.config import Configuration
@@ -24,10 +24,31 @@ from fastapi import FastAPI
 from starlette.middleware import Middleware
 from starlette.requests import Request
 
+from anyblok_fastapi.subapps import (
+    FastAPIPathConflictError,
+    FastAPISubAppDefinition,
+    FastAPISubAppRegistry,
+    mount_fastapi_apps,
+    normalize_path,
+)
+
 if TYPE_CHECKING:
     from starlette.routing import BaseRoute
 
 logger = getLogger(__name__)
+
+__all__ = [
+    "FastAPIPathConflictError",
+    "FastAPISubAppDefinition",
+    "FastAPISubAppRegistry",
+    "create_app",
+    "get_blok_routes",
+    "get_registry",
+    "mount_fastapi_apps",
+    "normalize_path",
+    "prepare_fastapi_from_installed_bloks",
+    "registry_transaction",
+]
 
 
 def get_registry(request: Request) -> Generator[Registry, None, None]:
@@ -60,7 +81,7 @@ def registry_transaction(registry: Registry) -> Generator[Registry, None, None]:
 
 def get_blok_routes(registry: Registry) -> list["BaseRoute"]:
     """Loop on each installed blok to load routes."""
-    routes = {}
+    routes: dict[str, Any] = {}
     for blok_name in registry.System.Blok.list_by_state("installed"):
         Blok = BlokManager.get(blok_name)
         if hasattr(Blok, "fastapi_routes"):
@@ -70,7 +91,7 @@ def get_blok_routes(registry: Registry) -> list["BaseRoute"]:
                 f"Using 'fastapi_routes' method on Blok {blok_name} is deprecated. "
                 "You should use prepare_fastapi instead",
                 DeprecationWarning,
-                stacklevel=1,
+                stacklevel=2,
             )
     return list(routes.values())
 
@@ -85,11 +106,14 @@ def prepare_fastapi_from_installed_bloks(
             Blok.prepare_fastapi(fastapi_app)
 
 
-def create_app(registry: Registry) -> FastAPI:
-    """Create FastAPI App delegating lifespan and transaction."""
+def create_app(
+    registry: Registry,
+    subapp_registry: FastAPISubAppRegistry | None = None,
+) -> FastAPI:
+    """Create FastAPI App delegating lifespan and transaction, mounting sub-apps."""
     routes: list[BaseRoute] = get_blok_routes(registry)
     middlewares = [
-        Middleware(AnyBlokTransactionMiddleware),
+        Middleware(AnyBlokTransactionMiddleware, default_registry=registry),
     ]
 
     for method in entry_points(group="anyblok_fastapi.middlewares"):
@@ -102,5 +126,6 @@ def create_app(registry: Registry) -> FastAPI:
 
     app = FastAPI(routes=routes, middleware=middlewares, lifespan=anyblok_lifespan)
     prepare_fastapi_from_installed_bloks(registry, app)
+    mount_fastapi_apps(app, registry, subapp_registry=subapp_registry)
 
     return app

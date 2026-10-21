@@ -16,45 +16,62 @@ dependencies = [
     "anyblok",
     "anyblok-starlette>=0.1.0",
     "fastapi",
-    "gunicorn",
     "sqlalchemy",
     "uvicorn[standard]",
 ]
 
-[project.scripts]
-anyblok_uvicorn="anyblok_fastapi.scripts:asgi"
-gunicorn_anyblok_uvicorn="anyblok_fastapi.scripts:gunicorn_asgi"
-
-
-[project.entry-points."anyblok.init"]
-anyblok_fastapi_config="anyblok_fastapi.init:anyblok_init_config"
-
 [project.entry-points.test_bloks]
 test-fastapi-blok1="anyblok_fastapi.test_bloks.test_blok1:TestBlok"
 
-
-[dependency-groups]
+[project.optional-dependencies]
 dev = [
   "pytest",
   "pytest-cov",
+  "httpx2",
   "httpx>=0.28.1",
   "pytest-asyncio",
   "WebTest",
   "sphinx",
   "sphinxcontrib-httpdomain",
   "psycopg[binary]",
+  "ruff",
+  "pre-commit",
+  "mypy",
 ]
 
+[dependency-groups]
+dev = [
+  "pytest",
+  "pytest-cov",
+  "httpx2",
+  "httpx>=0.28.1",
+  "pytest-asyncio",
+  "WebTest",
+  "sphinx",
+  "sphinxcontrib-httpdomain",
+  "psycopg[binary]",
+  "ruff",
+  "pre-commit",
+  "mypy",
+]
 
+[tool.hatch.build.targets.wheel]
+packages = ["anyblok_fastapi"]
+
+[tool.pytest.ini_options]
+testpaths = ["anyblok_fastapi/tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+addopts = "-ra -W error --cov=anyblok_fastapi --cov-report=term-missing --cov-fail-under=100"
 
 [tool.coverage.run]
 branch = true
 omit = [
-  "__init__.py",
   "*/tests/*",
+  "anyblok_fastapi/test_bloks/*",
   "conftest.py",
-  "config.py",
 ]
 
 [tool.coverage.report]
 show_missing = true
+fail_under = 100

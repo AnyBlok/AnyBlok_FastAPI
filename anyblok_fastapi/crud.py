@@ -128,7 +128,7 @@ def create_crud_router(
         return schemas
 
     @router.get("/", response_model=list[Any])
-    def list_records(
+    async def list_records(
         offset: int = Query(0, ge=0),
         limit: int = Query(100, ge=1, le=1000),
         registry: Registry = Depends(get_registry),
@@ -139,7 +139,7 @@ def create_crud_router(
         return [schema.model_validate(r) for r in records]
 
     @router.get("/{id}", response_model=Any)
-    def get_record(
+    async def get_record(
         id: Any,
         registry: Registry = Depends(get_registry),
     ):
@@ -155,19 +155,19 @@ def create_crud_router(
         return schema.model_validate(record)
 
     @router.post("/", response_model=Any, status_code=status.HTTP_201_CREATED)
-    def create_record(
+    async def create_record(
         payload: dict[str, Any],
         registry: Registry = Depends(get_registry),
     ):
         model_cls = getattr(registry, model_name)
-        _get_schemas(registry)
+        schemas_map = _get_schemas(registry)
         record = model_cls.insert(**payload)
         registry.flush()
-        schema = schemas["read"]
+        schema = schemas_map["read"]
         return schema.model_validate(record)
 
     @router.put("/{id}", response_model=Any)
-    def update_record(
+    async def update_record(
         id: Any,
         payload: dict[str, Any],
         registry: Registry = Depends(get_registry),
@@ -188,7 +188,7 @@ def create_crud_router(
         return schema.model_validate(record)
 
     @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-    def delete_record(
+    async def delete_record(
         id: Any,
         registry: Registry = Depends(get_registry),
     ):
