@@ -284,3 +284,60 @@ def test_mount_fastapi_apps_no_system_blok():
     empty_reg = object()
     mounted = mount_fastapi_apps(parent, empty_reg)
     assert mounted == {}
+
+
+def test_prepare_fastapi_middlewares():
+    from anyblok_fastapi.fastapi import prepare_fastapi_from_installed_bloks
+
+    mock_reg = MagicMock()
+    mock_reg.System.Blok.list_by_state.return_value = ["blok_2params", "blok_1param"]
+
+    class Blok2Params:
+        @classmethod
+        def prepare_fastapi_middlewares(cls, app: FastAPI, registry: object) -> None:
+            app.state.mw_called_2 = True
+
+    class Blok1Param:
+        @classmethod
+        def prepare_fastapi_middlewares(cls, app: FastAPI) -> None:
+            app.state.mw_called_1 = True
+
+    def mock_get(name):
+        if name == "blok_2params":
+            return Blok2Params
+        return Blok1Param
+
+    app = FastAPI()
+    with patch("anyblok_fastapi.fastapi.BlokManager.get", side_effect=mock_get):
+        prepare_fastapi_from_installed_bloks(mock_reg, app)
+
+    assert getattr(app.state, "mw_called_2", False) is True
+    assert getattr(app.state, "mw_called_1", False) is True
+
+
+def test_subapps_prepare_fastapi_middlewares():
+    class BlokSubappMW2:
+        @classmethod
+        def prepare_fastapi_middlewares(cls, app: FastAPI, code: str) -> None:
+            app.state.subapp_mw_2 = code
+
+    class BlokSubappMW1:
+        @classmethod
+        def prepare_fastapi_middlewares(cls, app: FastAPI) -> None:
+            app.state.subapp_mw_1 = True
+
+    def mock_get(name):
+        if name == "mw2":
+            return BlokSubappMW2
+        return BlokSubappMW1
+
+    with patch("anyblok_fastapi.subapps.BlokManager.get", side_effect=mock_get):
+        app_custom = FastAPI()
+        _populate_subapp_routes(app_custom, "custom", ["mw2", "mw1"])
+        assert getattr(app_custom.state, "subapp_mw_2", None) == "custom"
+        assert getattr(app_custom.state, "subapp_mw_1", False) is False
+
+        app_default = FastAPI()
+        _populate_subapp_routes(app_default, "default", ["mw2", "mw1"])
+        assert getattr(app_default.state, "subapp_mw_2", None) == "default"
+        assert getattr(app_default.state, "subapp_mw_1", False) is True

@@ -1,3 +1,5 @@
+import inspect
+
 # This file is a part of the AnyBlok / FastAPI
 #
 #    Copyright (C) 2020 Pierre Verkest <pierreverkest84@gmail.com>
@@ -101,6 +103,17 @@ def prepare_fastapi_from_installed_bloks(
 ) -> None:
     for blok_name in registry.System.Blok.list_by_state("installed"):
         Blok = BlokManager.get(blok_name)
+        if hasattr(Blok, "prepare_fastapi_middlewares"):
+            logger.debug("Prepare fastapi middlewares from blok: %r", blok_name)
+            sig = inspect.signature(Blok.prepare_fastapi_middlewares)
+            params = [
+                p for p in sig.parameters.values() if p.name not in ("cls", "self")
+            ]
+            if len(params) >= 2:
+                Blok.prepare_fastapi_middlewares(fastapi_app, registry)
+            else:
+                Blok.prepare_fastapi_middlewares(fastapi_app)
+
         if hasattr(Blok, "prepare_fastapi"):
             logger.debug("Prepare fastapi from blok: %r", blok_name)
             Blok.prepare_fastapi(fastapi_app)

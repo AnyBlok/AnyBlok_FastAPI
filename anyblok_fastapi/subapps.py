@@ -199,6 +199,16 @@ def _populate_subapp_routes(
         except Exception:  # noqa: BLE001, S112
             continue
 
+        if hasattr(Blok, "prepare_fastapi_middlewares"):
+            sig = inspect.signature(Blok.prepare_fastapi_middlewares)
+            params = [
+                p for p in sig.parameters.values() if p.name not in ("cls", "self")
+            ]
+            if len(params) >= 2:
+                Blok.prepare_fastapi_middlewares(sub_app, code)
+            elif code == "default":
+                Blok.prepare_fastapi_middlewares(sub_app)
+
         if hasattr(Blok, "prepare_fastapi"):
             sig = inspect.signature(Blok.prepare_fastapi)
             params = [

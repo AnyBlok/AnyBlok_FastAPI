@@ -16,6 +16,7 @@ Rather than enforcing a monolithic application, it allows Starlette to host one 
 * **Unified Starlette ASGI Server**: Starlette handles the root server, AnyBlok lifecycle (**Lifespan**), and automatic transaction management (**AnyBlokTransactionMiddleware**).
 * **Multi-API via Mounted Sub-Services**: Modular declaration of multiple FastAPI sub-apps (e.g. /api/v1, /api/partner, /admin/api) with complete route and documentation isolation.
 * **Conditional Loading by Installed Bloks**: Sub-applications and endpoints are loaded if and only if their declaring Bloks are marked as installed in the database.
+* **Dynamic Middlewares per Sub-App or Globally**: Declare ASGI middlewares conditionally loaded per sub-app via ``prepare_fastapi_middlewares(app, code)`` or globally on the root Starlette server via anyblok-starlette.
 * **Strict Path Validation & Collision Surveillance**: Automatic detection and prevention of path collisions between sub-apps (FastAPIPathConflictError).
 * **Dedicated OpenAPI / Swagger Documentation per Sub-App**: Each mounted sub-app serves its own interactive documentation (/path/docs, /path/redoc, /path/openapi.json) reflecting strictly the routes declared for its code by installed Bloks.
 * **Native Dependency Injection**: Direct access to the current transaction's AnyBlok registry using Depends(get_registry).
@@ -142,7 +143,38 @@ To register routes on a specific sub-app, implement the prepare_fastapi(app, cod
 **Installation guarantee:**
 If a Blok is not marked as installed in registry.System.Blok for the active database, its sub-apps are never mounted and its routes are never registered.
 
-5. Migrating from Deprecated fastapi_routes to prepare_fastapi
+5. Declaring Middlewares on FastAPI Sub-Apps (prepare_fastapi_middlewares)
+-------------------------------------------------------------------------
+
+Installed Bloks can dynamically register ASGI middlewares loaded specifically on a target FastAPI sub-application:
+
+.. code-block:: python
+
+    from anyblok.blok import Blok
+    from fastapi import FastAPI
+    from starlette.middleware.base import BaseHTTPMiddleware
+
+
+    class ApiAuditMiddleware(BaseHTTPMiddleware):
+        async def dispatch(self, request, call_next):
+            response = await call_next(request)
+            response.headers["X-API-Audit"] = "Passed"
+            return response
+
+
+    class ApiAuditBlok(Blok):
+        version = "0.1.0"
+
+        @classmethod
+        def prepare_fastapi_middlewares(cls, app: FastAPI, code: str = "default") -> None:
+            # Mount middleware on all sub-apps or target a specific sub-app code
+            if code == "public":
+                app.add_middleware(ApiAuditMiddleware)
+
+.. note::
+   When mounting without sub-apps (single default app), the signatures ``prepare_fastapi_middlewares(cls, app, registry)`` and ``prepare_fastapi_middlewares(cls, app)`` are also seamlessly supported.
+
+6. Migrating from Deprecated fastapi_routes to prepare_fastapi
 --------------------------------------------------------------
 
 In earlier versions of **AnyBlok_FastAPI**, routes were declared by defining a fastapi_routes(routes) class method on the Blok class and mutating a dictionary of raw Starlette Route or FastAPI APIRoute objects:
@@ -218,7 +250,7 @@ How to migrate to prepare_fastapi:
             if code in ("default", "public"):
                 app.include_router(router)
 
-6. Faithful OpenAPI / Swagger Documentation Isolation
+7. Faithful OpenAPI / Swagger Documentation Isolation
 -----------------------------------------------------
 
 Each mounted FastAPI sub-application independently generates its own isolated API documentation:
@@ -229,7 +261,7 @@ Each mounted FastAPI sub-application independently generates its own isolated AP
 
 Each schema contains **only the routes declared for its specific code by installed Bloks**.
 
-7. AnyBlok Registry Dependency Injection (Depends(get_registry))
+8. AnyBlok Registry Dependency Injection (Depends(get_registry))
 --------------------------------------------------------------------
 
 In any route handler, use the get_registry helper with FastAPI dependency injection to obtain the AnyBlok registry bound to the current HTTP transaction:
@@ -249,7 +281,7 @@ In any route handler, use the get_registry helper with FastAPI dependency inject
             raise HTTPException(status_code=404, detail="User not found")
         return {"id": user.id, "login": user.login}
 
-8. Automatic REST CRUD Generator (create_crud_router)
+9. Automatic REST CRUD Generator (create_crud_router)
 ---------------------------------------------------------
 
 Generate complete REST CRUD endpoints (GET list, GET item, POST create, PUT update, DELETE) with Pydantic v2 validation from any AnyBlok model:
@@ -267,7 +299,7 @@ Generate complete REST CRUD endpoints (GET list, GET item, POST create, PUT upda
 
     app.include_router(product_router)
 
-9. Mounting on a Custom Starlette Application
+10. Mounting on a Custom Starlette Application
 ---------------------------------------------
 
 Mount all declared FastAPI sub-apps onto any existing Starlette application using mount_fastapi_apps:
